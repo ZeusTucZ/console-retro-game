@@ -1,26 +1,82 @@
 
+import { useState } from 'react'
 import './App.css'
-import Screen from './components/Screen';
-import useFetch from './hooks/useFetch';
-import LeftControl from './components/LeftControl'; 
-import RightControl from './components/RightControl';
-
+import BattleScreen from './components/BattleScreen'
+import Screen from './components/Screen'
+import useFetch from './hooks/useFetch'
+import LeftControl from './components/LeftControl'
+import RightControl from './components/RightControl'
 
 function App() {
-  const url = "https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0"
+  const url = "https://pokeapi.co/api/v2/pokemon?limit=102&offset=0"
   const  {data, loading, error } = useFetch(url)
-  
-  
+
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const pokemones = data?.results ?? []
+  const columns = 3
+
+  const [gameScreen, setGameScreen] = useState('select')
+  const [selectedPokemon, setSelectedPokemon] = useState(null)
+  const [enemyPokemon, setEnemyPokemon] = useState(null)
+
+  const handleStartBattle = () => {
+    if (!pokemones.length) return
+
+    const playerPokemon = pokemones[selectedIndex]
+    const randomIndex = Math.floor(Math.random() * pokemones.length)
+    const cpuPokemon = pokemones[randomIndex]
+
+    setSelectedPokemon(playerPokemon)
+    setEnemyPokemon(cpuPokemon)
+    setGameScreen('battle')
+  }
+
+  const handleExitBattle = () => {
+    if (gameScreen !== 'battle') return
+
+    setGameScreen('select')
+  }
+
+
+  const handleMoveSelection = (direction) => {
+    if (!pokemones.length) return
+
+    setSelectedIndex((currentIndex) => {
+      switch (direction) {
+        case 'up':
+          return Math.max(currentIndex - columns, 0)
+        case 'down':
+          return Math.min(currentIndex + columns, pokemones.length - 1)
+        case 'left':
+          return Math.max(currentIndex - 1, 0)
+        case 'right':
+          return Math.min(currentIndex + 1, pokemones.length - 1)
+        default:
+          return currentIndex
+      }
+    })
+  }
+
   console.log(data)
-  
+
   return (
-    <div className ="flex">
-      <h1 className = 'text-3xl font-bold underline'>Hello World </h1>
-      <LeftControl />
-      <Screen pokemones={data?.results} />
-      <RightControl />
+    <div className ="flex justify-center mt-60">
+      <LeftControl onMoveSelection={handleMoveSelection} />
+      {gameScreen === 'select' ? (
+        <Screen
+          pokemones={pokemones}
+          selectedIndex={selectedIndex}
+          onSelectPokemon={setSelectedIndex}
+        />
+      ) : (
+        <BattleScreen
+          playerPokemon={selectedPokemon}
+          enemyPokemon={enemyPokemon}
+        />
+      )}
+      <RightControl onPressA={handleStartBattle} onPressB={handleExitBattle} />
     </div>
-  );
+  )
 }
 
 export default App
