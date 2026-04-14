@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import './App.css'
 import BattleScreen from './components/BattleScreen'
+import PokemonDetails from './components/PokemonDetails'
 import Screen from './components/Screen'
 import useFetch from './hooks/useFetch'
 import LeftControl from './components/LeftControl'
@@ -13,6 +14,7 @@ function App() {
 
   const [selectedIndex, setSelectedIndex] = useState(0)
   const pokemones = data?.results ?? []
+  const selectedPokemonForDetails = pokemones[selectedIndex] ?? null
   const columns = 3
 
   const [gameScreen, setGameScreen] = useState('select')
@@ -60,21 +62,27 @@ function App() {
   console.log(data)
 
   return (
-    <div className ="flex justify-center mt-60">
-      <LeftControl onMoveSelection={handleMoveSelection} />
-      {gameScreen === 'select' ? (
-        <Screen
-          pokemones={pokemones}
-          selectedIndex={selectedIndex}
-          onSelectPokemon={setSelectedIndex}
-        />
-      ) : (
-        <BattleScreen
-          playerPokemon={selectedPokemon}
-          enemyPokemon={enemyPokemon}
-        />
+    <div className ="mt-24 flex flex-col items-center gap-6">
+      <div className="flex justify-center">
+        <LeftControl onMoveSelection={handleMoveSelection} />
+        {gameScreen === 'select' ? (
+          <Screen
+            pokemones={pokemones}
+            selectedIndex={selectedIndex}
+            onSelectPokemon={setSelectedIndex}
+          />
+        ) : (
+          <BattleScreen
+            playerPokemon={selectedPokemon}
+            enemyPokemon={enemyPokemon}
+          />
+        )}
+        <RightControl onPressA={handleStartBattle} onPressB={handleExitBattle} />
+      </div>
+
+      {gameScreen === 'select' && (
+        <PokemonDetails pokemon={selectedPokemonForDetails} />
       )}
-      <RightControl onPressA={handleStartBattle} onPressB={handleExitBattle} />
     </div>
   )
 }
