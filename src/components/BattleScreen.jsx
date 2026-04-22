@@ -38,31 +38,53 @@ function HealthBar({ name, value = 100 }) {
 
 function BattleScreen({ playerPokemon, enemyPokemon }) {
   const { data: playerData } = useFetch(playerPokemon?.url)
+  const { data: enemyData } = useFetch(playerPokemon?.url)
   const [playerHp, setPlayerHp] = useState(100)
   const [enemyHp, setEnemyHp] = useState(100)
   const battleResult = enemyHp <= 0 ? 'win' : playerHp <= 0 ? 'lost' : null
+  const [turn, setTurn] = useState('player');
 
   const playerMoves = useMemo(
     () => playerData?.moves?.slice(0, 4).map(({ move }) => move) ?? [],
     [playerData]
   )
 
-  const handleAttack = () => {
+  const enemyMoves = useMemo(
+    () => enemyData?.moves?.slice(0, 4).map(({ move }) => move) ?? [],
+    [enemyData]
+  )
+
+  const handleAttack = (move) => {
+    if (turn != 'player') return;
     if (playerHp <= 0 || enemyHp <= 0) return
 
     const playerDamage = getRandomDamage()
     const nextEnemyHp = Math.max(enemyHp - playerDamage, 0)
 
+    setEnemyHp(nextEnemyHp);
+
     if (nextEnemyHp === 0) {
-      setEnemyHp(0)
+      setTurn('ended')
       return
     }
 
-    const cpuDamage = getRandomDamage()
-    const nextPlayerHp = Math.max(playerHp - cpuDamage, 0)
+    setTurn('enemy');
 
-    setEnemyHp(nextEnemyHp)
-    setPlayerHp(nextPlayerHp)
+    setTimeout(() => {
+      const cpuMove = enemyMoves[Math.floor(Math.random() * enemyMoves.length)] ?? { name: 'tackle' }
+
+      const cpuDamage = getRandomDamage();
+      const nextPlayerHp = Math.max(playerHp - cpuDamage, 0);
+
+      setPlayerHp(nextPlayerHp);
+
+      if (nextPlayerHp === 0) {
+        setTurn('ended');
+        return;
+      }
+
+      setTurn('player');
+    }, 500)
   }
 
   return (
@@ -97,7 +119,7 @@ function BattleScreen({ playerPokemon, enemyPokemon }) {
             key={move.name}
             type="button"
             onClick={() => handleAttack(move)}
-            disabled={playerHp <= 0 || enemyHp <= 0}
+            disabled={turn != 'player' || playerHp <= 0 || enemyHp <= 0}
             className="rounded border border-zinc-900 px-1.5 py-1 text-left text-[9px] font-bold uppercase leading-tight disabled:opacity-50"
           >
             {formatMoveName(move.name)}
