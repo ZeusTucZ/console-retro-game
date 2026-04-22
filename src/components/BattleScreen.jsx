@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import useFetch from '../hooks/useFetch'
 
 const getPokemonId = (pokemon) => pokemon?.url.split('/').filter(Boolean).pop()
@@ -38,7 +38,6 @@ function HealthBar({ name, value = 100 }) {
 
 function BattleScreen({ playerPokemon, enemyPokemon }) {
   const { data: playerData } = useFetch(playerPokemon?.url)
-  const { data: enemyData } = useFetch(enemyPokemon?.url)
   const [playerHp, setPlayerHp] = useState(100)
   const [enemyHp, setEnemyHp] = useState(100)
   const battleResult = enemyHp <= 0 ? 'win' : playerHp <= 0 ? 'lost' : null
@@ -48,17 +47,7 @@ function BattleScreen({ playerPokemon, enemyPokemon }) {
     [playerData]
   )
 
-  const enemyMoves = useMemo(
-    () => enemyData?.moves?.slice(0, 4).map(({ move }) => move) ?? [],
-    [enemyData]
-  )
-
-  useEffect(() => {
-    setPlayerHp(100)
-    setEnemyHp(100)
-  }, [playerPokemon, enemyPokemon])
-
-  const handleAttack = (move) => {
+  const handleAttack = () => {
     if (playerHp <= 0 || enemyHp <= 0) return
 
     const playerDamage = getRandomDamage()
@@ -69,8 +58,6 @@ function BattleScreen({ playerPokemon, enemyPokemon }) {
       return
     }
 
-    const cpuMove =
-      enemyMoves[Math.floor(Math.random() * enemyMoves.length)] ?? { name: 'tackle' }
     const cpuDamage = getRandomDamage()
     const nextPlayerHp = Math.max(playerHp - cpuDamage, 0)
 

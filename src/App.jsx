@@ -10,7 +10,7 @@ import RightControl from './components/RightControl'
 
 function App() {
   const url = "https://pokeapi.co/api/v2/pokemon?limit=102&offset=0"
-  const  {data, loading, error } = useFetch(url)
+  const  {data} = useFetch(url)
 
   const [selectedIndex, setSelectedIndex] = useState(0)
   const pokemones = data?.results ?? []
@@ -73,6 +73,7 @@ function App() {
           />
         ) : (
           <BattleScreen
+            key={`${selectedPokemon?.name}-${enemyPokemon?.name}`}
             playerPokemon={selectedPokemon}
             enemyPokemon={enemyPokemon}
           />
