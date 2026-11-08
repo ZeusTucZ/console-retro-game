@@ -1,16 +1,60 @@
-# React + Vite
+# Console Retro Game — Pokémon-Style Turn-Based Battle
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A retro console-style Pokémon battle game in the browser: pick a Pokémon,
+read its details, and fight a turn-based battle against a random CPU
+opponent.
 
-Currently, two official plugins are available:
+## What it does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Fetches the first 102 Pokémon from the
+  [PokéAPI](https://pokeapi.co/api/v2/pokemon?limit=102&offset=0) — an
+  internet connection is required.
+- Selection screen: a 3-column grid navigated with on-screen D-pad style
+  controls (left / right panels) or by clicking, plus a details panel for
+  the selected Pokémon.
+- Battle screen: start a battle with your selected Pokémon against a random
+  CPU Pokémon; battles play out turn by turn.
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 + Vite
+- Tailwind CSS 4
+- Data from PokéAPI (no backend, no local game data)
 
-## Expanding the ESLint configuration
+## Run locally
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+The Vite dev server runs on `http://localhost:5173` by default.
+
+Other scripts:
+
+```bash
+npm run build    # production build
+npm run preview  # preview the production build
+npm run lint     # ESLint
+```
+
+## Project structure
+
+```text
+src/
+├── App.jsx                  # game state: select screen vs. battle screen
+├── hooks/useFetch.jsx       # data fetching from PokéAPI
+└── components/
+    ├── Screen.jsx           # Pokémon selection grid
+    ├── PokemonDetails.jsx   # details panel for the selected Pokémon
+    ├── BattleScreen.jsx     # turn-based battle view
+    ├── LeftControl.jsx      # D-pad style navigation (up / down / left / right)
+    └── RightControl.jsx
+```
+
+## Current state and limitations
+
+- No screenshot exists yet.
+- No tests or CI, and no live demo URL.
+- Battle opponents and the Pokémon list come from the live PokéAPI, so the
+  game needs internet access to load.
